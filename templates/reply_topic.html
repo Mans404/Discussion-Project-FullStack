@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Replies - {{ topic.subject }}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-bottom: 60px;
+        }
+        .breadcrumb {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        .post-card {
+            border-left: 4px solid #28a745;
+            transition: transform 0.2s;
+        }
+        .success-alert {
+            border-left: 4px solid #28a745;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-comments"></i> Discussion Board
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Breadcrumb Navigation -->
+        <ol class="breadcrumb my-4">
+            <li class="breadcrumb-item">
+                <a href="{% url 'home' %}"><i class="fas fa-home"></i> Boards</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'Topics' board_id=topic.board.pk %}">
+                    <i class="fas fa-layer-group"></i> {{ topic.board.name }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                <i class="fas fa-comment-dots"></i> {{ topic.subject }}
+            </li>
+        </ol>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success success-alert alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-reply"></i> Replies to: {{ topic.subject }}
+                </h3>
+            </div>
+        </div>
+
+        <!-- Original Topic -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between">
+                    <strong>Original Post</strong>
+                    <small class="text-muted">
+                        {{ topic.starter.username }} - {{ topic.created_at|date:"M d, Y H:i" }}
+                    </small>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ topic.first_post.message|linebreaks }}
+            </div>
+        </div>
+
+        <!-- Replies List -->
+        {% for reply in topic.posts.all %}
+            {% if not forloop.first %}  <!-- Skip the first post (original topic) -->
+                <div class="card mb-3 post-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <strong>{{ reply.created_by.username }}</strong>
+                            <small class="text-muted">
+                                {{ reply.created_at|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                        <hr>
+                        <div class="post-content">
+                            {{ reply.message|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="mt-4">
+            <a href="{% url 'topic_posts' pk=topic.board.pk topic_pk=topic.pk %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Topic
+            </a>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        $(document).ready(function() {
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

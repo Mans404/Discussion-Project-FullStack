@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{board.name}}</title>
+    <style>
+        /* Main container styling */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin-top: 30px;
+        }
+
+        /* Breadcrumb styling */
+        .breadcrumb {
+            background-color: #e9ecef;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .breadcrumb-item a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb-item a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        /* Button styling */
+        .btn-primary {
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Table styling */
+        .table {
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background-color: #343a40;
+            color: white;
+            font-weight: 600;
+            padding: 12px 15px;
+            border: none;
+        }
+        .table tbody tr {
+            transition: background-color 0.2s;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #e9ecef;
+        }
+        .table td a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .table td a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        /* Pagination styling */
+        .pagination {
+            margin-top: 30px;
+            justify-content: center;
+        }
+        .page-item {
+            margin: 0 4px;
+        }
+        .page-link {
+            color: #495057;
+            border: 1px solid #dee2e6;
+            padding: 8px 14px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .page-link:hover {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            color: #007bff;
+        }
+        .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        .page-item.disabled .page-link {
+            color: #6c757d;
+            pointer-events: none;
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .table {
+                font-size: 14px;
+            }
+            .table td, .table th {
+                padding: 8px 10px;
+            }
+            .breadcrumb {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .btn-primary {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+ <div class="container">
+    <ul class="breadcrumb my-4">  
+        <li class="breadcrumb-item active">
+            <a href="{% url 'home' %}" target="_blank">Board</a>: {{board}}
+        </li>
+    </ul>
+ </div>
+ <a href="{% url 'newTopic' board.pk %}" class="btn btn-primary">New Topic</a>
+ <table class="table">
+    <thead class="table-dark">
+        <tr>
+            <th>Topic</th>
+            <th>Created by</th>
+            <th>Posts</th>
+            <th>Views</th>
+            <th>Created date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for topic in topics %}
+            <tr>
+                <td><a href="{% url 'topic_posts' board.pk topic.pk %}">{{ topic.subject }}</a></td> 
+                <td>{{ topic.created_by.username }}</td>
+                <td>{{ topic.comments }}</td>
+                <td>{{ topic.views }}</td>
+                <td>{{ topic.created_dt|date:"M d, Y H:i" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Fixed pagination links (corrected syntax) -->
+<ul class="pagination">
+    {% if topics.has_previous %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ topics.previous_page_number }}">Previous</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+        <span class="page-link">Previous</span>
+    </li>
+    {% endif %}
+
+    {% for page_num in topics.paginator.page_range %}
+        {% if topics.number == page_num %}
+        <li class="page-item active">
+            <span class="page-link">{{ page_num }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+        </li>
+        {% endif %}
+    {% endfor %}
+
+    {% if topics.has_next %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ topics.next_page_number }}">Next</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+        <span class="page-link">Next</span>
+    </li>
+    {% endif %}
+</ul>
+</body>
+</html>
